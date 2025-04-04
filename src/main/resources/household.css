@@ -1,0 +1,192 @@
+/* Imports */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+
+/* ----------------------------
+   1. GLOBAL STYLES
+---------------------------- */
+
+.root {
+    -fx-background-image: url("/images/Wavy_backround.png");
+    -fx-background-size: 100% 100%;
+    -fx-background-position: center center;
+    -fx-font-family: 'Roboto', sans-serif;
+    -fx-font-size: 13px;
+}
+
+/* ----------------------------
+    2. LEFT  SECTION
+ ---------------------------- */
+
+/* Search field */
+.search-field {
+    -fx-background-color: white;
+    -fx-background-radius: 6px;
+    -fx-border-color: #e0e0e0;
+    -fx-border-radius: 6px;
+    -fx-padding: 8px 10px;
+}
+
+.text-field:focused {
+    -fx-border-color: #3498db;
+    -fx-border-width: 1px;
+    -fx-effect: dropshadow(gaussian, rgba(52,152,219,0.1), 5, 0, 0, 0);
+}
+
+/* Sidebar */
+.sidebar {
+    -fx-text-fill: white;
+    -fx-background-color: rgba(44, 62, 80, 0.5);
+    -fx-padding: 20px;
+    -fx-border-color: #3b3b3b;
+    -fx-border-width: 2px;
+    -fx-border-radius: 7px;
+    -fx-background-radius: 10px 0 0 10px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 10, 0, 2, 2);
+}
+
+.sidebar .label {
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+}
+
+.sidebar-button {
+    -fx-alignment: center-left;
+    -fx-background-color: #f0f2f5;
+    -fx-background-radius: 6px;
+    -fx-padding: 8px 15px;
+    -fx-font-weight: 500;
+    -fx-text-fill: #2c3e50;
+    -fx-border-width: 0;
+    -fx-cursor: hand;
+}
+
+.sidebar-button:hover {
+    -fx-background-color: #e1e5ea;
+    -fx-border-width: 2px;
+    -fx-border-color: #0091ff;
+    -fx-padding: 6px 13px;
+    -fx-background-insets: 2px;
+    -fx-background-radius: 0;
+}
+
+.sidebar-button:pressed, .sidebar-button.active {
+    -fx-background-color: #ebf5fb;
+    -fx-font-weight: bold;
+    -fx-border-width: 0 0 0 3px;
+    -fx-border-color: #3498db;
+    -fx-padding: 10px 15px 10px 12px;
+}
+
+.sidebar-button .label {
+    -fx-padding: 0 0 0 8px;
+    -fx-font-size: 14px;
+}
+
+.username-label {
+    -fx-font-weight: bold;
+    -fx-font-size: 16px;
+    -fx-padding: 0 0 10 5;
+    -fx-text-fill: #2c3e50;
+    -fx-border-width: 0 0 2px 0;
+    -fx-border-color: #3498db;
+}
+
+/* Icons */
+.icon {
+    -fx-min-width: 18px;
+    -fx-min-height: 18px;
+    -fx-max-width: 18px;
+    -fx-max-height: 18px;
+    -fx-background-color: #2c3e50;
+}
+
+.sidebar-button:hover .icon {
+    -fx-background-color: #3498db;
+}
+
+.sidebar-button.active .icon {
+    -fx-background-color: #3498db;
+}
+
+/* Logout button */
+.logout-button {
+    -fx-background-color: #c2c6db;
+    -fx-text-fill: black;
+    -fx-padding: 10px 20px;
+    -fx-background-radius: 6px;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+}
+
+.logout-button:hover {
+    -fx-background-color: #c0392b; /* Dark red on hover */
+    -fx-border-width: 2px;
+    -fx-border-color: #0091ff;
+    -fx-padding: 8px 18px;
+    -fx-background-insets: 0px;
+    -fx-background-radius: 0;
+}
+
+.logout-button:pressed {
+    -fx-background-color: #a93226; /* Darker red when pressed */
+}
+
+/* ----------------------------
+    3. MAIN  SECTION
+ ---------------------------- */
+.household-name {
+    -fx-font-weight: bold;
+    -fx-font-size: 16px;
+    -fx-padding: 0 0 10 5;
+    -fx-text-fill: #2c3e50;
+    -fx-border-width: 0 0 2px 0;
+    -fx-border-color: #3498db;
+}
+
+/* Member Card Styling */
+.member-card {
+    -fx-background-color: white;
+    -fx-background-radius: 10px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);
+    -fx-padding: 15px;
+
+}
+
+.member-cards-container {
+    -fx-border-color: black;
+    -fx-border-width: 1;
+    -fx-border-radius: 10;
+    -fx-background-color: transparent;
+}
+
+.member-card-initials {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+}
+
+.member-card-name {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}
+
+.member-card-role {
+    -fx-text-fill: #666666;
+}
+
+.member-card-stats {
+    -fx-font-size: 14px;
+}
+
+.view-more-button {
+    -fx-background-color: #E9ECEF;
+    -fx-text-fill: #007BFF;
+    -fx-font-weight: bold;
+    -fx-background-radius: 5;
+}
+
+.view-more-button:hover {
+    -fx-background-color: #DEE2E6;
+}
+

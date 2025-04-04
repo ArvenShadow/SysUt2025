@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.text.Text?>
+
+<VBox fx:id="memberCard" styleClass="member-card" spacing="10"
+      xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="edu.ntnu.idi.idatt1005.view.household.MemberCardController">
+
+    <!-- Avatar and Initials -->
+    <StackPane alignment="CENTER">
+        <Circle fx:id="avatar" radius="30" styleClass="member-avatar" />
+        <Text fx:id="initials" styleClass="member-initials"/>
+    </StackPane>
+
+    <!-- Name & Role -->
+    <VBox alignment="CENTER">
+        <Text fx:id="name" styleClass="member-name"/>
+        <Text fx:id="role" styleClass="member-role"/>
+    </VBox>
+
+    <!-- Task Statistics -->
+    <Label fx:id="ongoingTasksLabel" styleClass="stat-label"/>
+    <Label fx:id="completedTasksLabel" styleClass="stat-label"/>
+    <Label fx:id="totalTasksLabel" styleClass="stat-label"/>
+
+    <!-- Buttons Container -->
+    <HBox alignment="CENTER" spacing="10">
+        <Button text="View More" fx:id="viewMoreButton"/>
+        <Button text="+" fx:id="addTaskButton" styleClass="add-task-button"/>
+    </HBox>
+</VBox>

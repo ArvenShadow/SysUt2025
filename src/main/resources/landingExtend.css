@@ -1,0 +1,205 @@
+/* ----------------------------------
+   IMPORTS & GLOBAL
+---------------------------------- */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+
+.root {
+    -fx-background-image: url("/images/Wavy_backround.png");
+    -fx-background-size: 100% 100%;
+    -fx-background-position: center center;
+    -fx-font-family: 'Roboto', sans-serif;
+    -fx-font-size: 13px;
+}
+
+/* ----------------------------------
+   FORM WRAPPER & BACKGROUND
+---------------------------------- */
+.form-background {
+    -fx-alignment: center;
+    -fx-background-color: transparent;
+}
+
+.form-wrapper {
+    -fx-background-color: rgba(63, 63, 63, 0.3);
+    -fx-background-radius: 12px;
+    -fx-border-color: #212121;
+    -fx-border-radius: 12px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 12, 0.1, 0, 4);
+    -fx-padding: 30;
+    -fx-max-width: 600px;
+    -fx-max-height: 600px;
+}
+
+/* ----------------------------------
+   HEADERS & FIELD STYLING
+---------------------------------- */
+.header {
+    -fx-font-size: 16px;
+    -fx-text-fill: #000000;
+    -fx-font-weight: bold;
+}
+
+/* Labels for form fields */
+.form-label {
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1e1e1e;
+    -fx-padding: 4 10 4 0;
+    -fx-alignment: center-right;
+}
+
+/* Inputs - unified styling */
+.text-field.form-input,
+.text-area.form-input,
+.combo-box.form-input,
+.date-picker.form-input {
+    -fx-background-color: rgba(117, 117, 117, 0.3);
+    -fx-background-radius: 6;
+    -fx-border-color: #3d3d3d;
+    -fx-border-radius: 6;
+    -fx-padding: 6 10;
+    -fx-font-size: 13px;
+    -fx-text-fill: #152026;
+    -fx-font-weight: normal;
+    -fx-pref-width: 250px;
+}
+
+.form-input:focused,
+.text-field:focused,
+.combo-box:focused,
+.date-picker:focused,
+.text-area:focused {
+    -fx-border-color: rgba(3, 99, 164, 0.55);
+    -fx-border-width: 1px;
+    -fx-effect: dropshadow(gaussian, rgba(52,152,219,0.1), 5, 0, 0, 0);
+}
+
+/* ----------------------------------
+   BUTTONS
+---------------------------------- */
+.button {
+    -fx-background-color: #f0f2f5;
+    -fx-background-radius: 6px;
+    -fx-padding: 8px 15px;
+    -fx-font-weight: 500;
+    -fx-text-fill: #2c3e50;
+    -fx-border-width: 0;
+    -fx-cursor: hand;
+}
+
+.button:hover {
+    -fx-background-color: #e1e5ea;
+    -fx-border-width: 2px;
+    -fx-border-color: #0091ff;
+    -fx-padding: 6px 13px;
+    -fx-background-radius: 0;
+}
+
+.button:pressed {
+    -fx-background-color: #d1d7e0;
+}
+
+.action-button {
+    -fx-background-color: #3498db;
+    -fx-text-fill: white;
+    -fx-padding: 8px 15px;
+    -fx-background-radius: 6px;
+    -fx-border-color: #0091ff;
+    -fx-cursor: hand;
+}
+
+.action-button:hover {
+    -fx-background-color: #2980b9;
+    -fx-border-width: 2px;
+    -fx-border-color: #0091ff;
+    -fx-padding: 6px 13px;
+    -fx-background-radius: 0;
+}
+
+.action-button:pressed {
+    -fx-background-color: #2473a6;
+    -fx-border-width: 0 0 1px 0;
+    -fx-translate-y: 2px;
+}
+
+/* ----------------------------------
+   FILTER POPUP
+---------------------------------- */
+.filter-popup {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #5c7fa3, #2b3e50);
+    -fx-background-radius: 10px;
+    -fx-padding: 20px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.25), 10, 0, 0, 4);
+}
+
+.filter-popup Label {
+    -fx-text-fill: black;
+    -fx-font-weight: bold;
+}
+
+.filter-popup .combo-box,
+.filter-popup .text-field,
+.filter-popup .date-picker {
+    -fx-background-color: rgba(117, 117, 117, 0.3);
+    -fx-background-radius: 8px;
+    -fx-border-color: #3d3d3d;
+    -fx-border-radius: 8px;
+    -fx-padding: 4 8 4 8;
+}
+
+.filter-popup Button {
+    -fx-background-color: #3498db;
+    -fx-text-fill: black;
+    -fx-background-radius: 6px;
+    -fx-padding: 6px 12px;
+    -fx-cursor: hand;
+    -fx-border-color: transparent;
+    -fx-border-width: 2px;
+}
+
+.filter-popup Button:hover {
+    -fx-background-color: #2980b9;
+    -fx-border-color: #0091ff;
+}
+
+/* Filter popup labels */
+.priority-label,
+.responsibility-label,
+.due-date-label {
+    -fx-font-size: 14px;
+    -fx-text-fill: black;
+    -fx-font-weight: bold;
+}
+
+/* ----------------------------------
+   DATE PICKER POPUP
+---------------------------------- */
+.date-picker-popup {
+    -fx-background-color: white;
+}
+
+.date-picker-popup .month-year-pane {
+    -fx-background-color: #3498db;
+}
+
+.date-picker-popup .month-year-pane .label {
+    -fx-text-fill: white;
+}
+
+.date-picker-popup .calendar-grid {
+    -fx-background-color: white;
+}
+
+.date-picker-popup .day-cell {
+    -fx-text-fill: #2c3e50;
+    -fx-background-color: white;
+}
+
+.date-picker-popup .day-cell:hover {
+    -fx-background-color: #d1ecff;
+}
+
+.date-picker-popup .day-cell.selected {
+    -fx-background-color: #3498db;
+    -fx-text-fill: black;
+}
