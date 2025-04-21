@@ -4,9 +4,19 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-
+/**
+ * Utility class for initializing and maintaining the database state.
+ * This class ensures that the database is properly set up during application startup,
+ * including tasks like adding missing users to the statistics table.
+ */
 public class DatabaseInitializer {
 
+  /**
+  * Default constructor for DatabaseInitializer.
+  */
+  public DatabaseInitializer() {
+    // Default constructor
+  }
   /**
    * This method runs during program startup to ensure the database is initialized and
    * kept up-to-date (e.g., ensuring all users exist in statistics, etc.).
@@ -24,10 +34,18 @@ public class DatabaseInitializer {
     }
   }
 
+  /**
+   * Ensures that all users in the `users` table have
+   * corresponding entries in the `statistics` table.
+   * If a user is missing in the `statistics` table,
+   * they are added with default values.
+   *
+   * @throws SQLException if a database access error occurs
+   */
   public void initializeStatistics() throws SQLException {
-    String updateStatQuery = "INSERT INTO statistics (user_id, completed_tasks) " +
-      "SELECT user_id, 0 " +
-      "FROM users WHERE user_id NOT IN (SELECT user_id FROM statistics);";
+    String updateStatQuery = "INSERT INTO statistics (user_id, completed_tasks) "
+        + "SELECT user_id, 0 "
+        + "FROM users WHERE user_id NOT IN (SELECT user_id FROM statistics);";
 
     try (Connection conn = DatabaseConnector.getConnection()) {
       try (PreparedStatement updateStatStatement = conn.prepareStatement(updateStatQuery)) {

@@ -1,18 +1,28 @@
 package edu.ntnu.idi.idatt1005.repository;
-import edu.ntnu.idi.idatt1005.model.User;
-import edu.ntnu.idi.idatt1005.db.DatabaseConnector;
 
-import java.sql.*;
+import edu.ntnu.idi.idatt1005.db.DatabaseConnector;
+import edu.ntnu.idi.idatt1005.model.User;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 /**
  * Repository class for retrieving user data from the database.
  * Handles login/authentication and user-related lookups.
  *
- * This version returns a {@link User} object instead of using static userId or username references.
- *
- * Author: KrissKN
+ * <p>This version returns a {@link User} object
+ * instead of using static userId or username references.
  */
 public class UserRepository {
+
+  /**
+  * Default constructor for UserRepository.
+  */
+  public UserRepository() {
+    // Default constructor implementation
+  }
+
 
   /**
    * Authenticates a user by username and password.
@@ -44,6 +54,15 @@ public class UserRepository {
     }
 
   }
+
+  /**
+   * Creates a new user in the database with the specified username and password.
+   *
+   * @param username the username for the new user
+   * @param password the password for the new user
+   * @return true if the user was successfully created, false otherwise
+   * @throws SQLException if a database access error occurs
+   */
   public boolean createUser(String username, String password) throws SQLException {
     String query = "INSERT INTO users (username, password) VALUES (?, ?)";
     try (Connection conn = DatabaseConnector.getConnection();

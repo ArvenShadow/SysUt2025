@@ -12,7 +12,6 @@ import javafx.stage.StageStyle;
  * Dialog for signing up a new user.
  * Uses {@link UserRepository} to create the user.
  *
- * Author: KrissKN
  */
 public class SignupDialog extends Dialog<User> {
 
@@ -70,7 +69,7 @@ public class SignupDialog extends Dialog<User> {
     String password = passwordField.getText().trim();
 
     try {
-      if(userRepository.createUser(username, password)) {
+      if (userRepository.createUser(username, password)) {
         showAlert("Signup successful!");
       }
       return true;

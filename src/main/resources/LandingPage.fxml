@@ -22,13 +22,10 @@
       </padding>
 
       <Label fx:id="usernameLabel" text="Hello, Admin!" styleClass="username-label"/>
-      <TextField fx:id="searchField" promptText="Search..." styleClass="search-field"/>
 
       <Separator/>
 
       <Button fx:id="homeButton" text="Home" maxWidth="Infinity" styleClass="sidebar-button"/>
-      <Button fx:id="statisticsButton" text="Statistics" maxWidth="Infinity" styleClass="sidebar-button"/>
-      <Button fx:id="calendarButton" text="Calendar" maxWidth="Infinity" styleClass="sidebar-button"/>
       <Button fx:id="householdButton" text="Household" maxWidth="Infinity" styleClass="sidebar-button"/>
 
       <Region VBox.vgrow="ALWAYS"/>
@@ -70,27 +67,39 @@
       </padding>
 
       <!-- 🔸 Pointers Section -->
-      <TitledPane text="Pointers" expanded="true" styleClass="pointers-pane">
+      <TitledPane text="Pointers" styleClass="pointers-pane">
         <VBox spacing="5">
           <HBox spacing="5" alignment="CENTER_LEFT">
             <Label text="🚩" style="-fx-text-fill: red;"/>
-            <Label text="Tasks with less" styleClass="pointers-text"/>
+            <Label text="Tasks with less" styleClass="statistics-text"/>
           </HBox>
           <HBox spacing="5" alignment="CENTER_LEFT">
             <Region prefWidth="20"/>
-            <Label text="than 1 day left" styleClass="pointers-text"/>
+            <Label text="than 1 day left" styleClass="statistics-text"/>
           </HBox>
           <HBox spacing="5" alignment="CENTER_LEFT">
             <Region prefWidth="20"/>
-            <Label text="are flagged" styleClass="pointers-text"/>
+            <Label text="are marked red" styleClass="statistics-text"/>
           </HBox>
         </VBox>
       </TitledPane>
 
       <!-- 🔹 Statistics Section -->
-      <TitledPane text="Statistics" expanded="false" styleClass="statistics-pane">
-        <VBox spacing="5">
-          <Label text="(Coming soon)" styleClass="statistics-title"/>
+      <TitledPane text="Statistics(Completed)" styleClass="statistics-pane">
+        <VBox spacing="10">
+          <HBox spacing="8" alignment="CENTER_LEFT">
+            <Label text="This Week" styleClass="statistics-text"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Label fx:id="tasksThisWeekLabel" text="0" styleClass="statistics-value"/>
+            <Label text="tasks" styleClass="statistics-text"/>
+          </HBox>
+
+          <HBox spacing="8" alignment="CENTER_LEFT">
+            <Label text="Last Week:" styleClass="statistics-text"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Label fx:id="tasksLastWeekLabel" text="0" styleClass="statistics-value"/>
+            <Label text="tasks" styleClass="statistics-text"/>
+          </HBox>
         </VBox>
       </TitledPane>
     </VBox>

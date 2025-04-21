@@ -30,6 +30,5 @@
     <!-- Buttons Container -->
     <HBox alignment="CENTER" spacing="10">
         <Button text="View More" fx:id="viewMoreButton"/>
-        <Button text="+" fx:id="addTaskButton" styleClass="add-task-button"/>
     </HBox>
 </VBox>

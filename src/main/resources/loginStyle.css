@@ -7,8 +7,15 @@
 /* ----------------------------
    1. GLOBAL STYLES
 ---------------------------- */
-@import url('https://fonts.googleapis.com/css2?family=Fugaz+One&display=swap');
-@import url('https://fonts.googleapis.com/css?family=K2D');
+@font-face {
+    font-family: 'Fugaz One';
+    src: url('fonts/FugazOne-Regular.ttf');
+}
+
+@font-face {
+    font-family: 'K2D';
+    src: url('fonts/K2D-Regular.ttf');
+}
 
 .fugaz-one-regular {
     font-family: "Fugaz One", sans-serif;

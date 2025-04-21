@@ -3,11 +3,15 @@ package edu.ntnu.idi.idatt1005.view.landing;
 import edu.ntnu.idi.idatt1005.app.AppState;
 import edu.ntnu.idi.idatt1005.app.NavigationController;
 import edu.ntnu.idi.idatt1005.model.Task;
+import edu.ntnu.idi.idatt1005.model.TaskPriority;
 import edu.ntnu.idi.idatt1005.model.User;
 import edu.ntnu.idi.idatt1005.repository.StatisticsRepository;
 import edu.ntnu.idi.idatt1005.repository.TaskRepository;
-import edu.ntnu.idi.idatt1005.model.TaskPriority;
 import edu.ntnu.idi.idatt1005.util.SoundPlayer;
+import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import edu.ntnu.idi.idatt1005.util.TableCellFactories;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -21,20 +25,21 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Popup;
 
-import java.sql.SQLException;
-import java.time.LocalDate;
-
 /**
  * Controller for the landing/dashboard page.
  * Handles task loading, filtering, and navigation.
- * Author: KrissKN
+ *
  */
 public class LandingPageController {
 
-  public TextField searchField;
-  // Task table and columns
-  @FXML
-  private TableView<Task> taskTable;
+  /**
+  * Default constructor for LandingPageController.
+  */
+  public LandingPageController() {
+
+  }
+
+  @FXML private TableView<Task> taskTable;
   @FXML private TableColumn<Task, LocalDate> dueDateColumn;
   @FXML private TableColumn<Task, TaskPriority> priorityColumn;
   @FXML private TableColumn<Task, String> descriptionColumn;
@@ -47,14 +52,15 @@ public class LandingPageController {
   @FXML private Button logoutButton;
   @FXML private Button completeTaskButton;
   @FXML private Button homeButton;
-  @FXML private Button calendarButton;
-  @FXML private Button statisticsButton;
   @FXML private Button householdButton;
 
+  @FXML private Label tasksThisWeekLabel;
+  @FXML private Label tasksLastWeekLabel;
   @FXML private Label usernameLabel;
 
   private final ObservableList<Task> masterTaskList = FXCollections.observableArrayList();
   private final TaskRepository taskRepository = new TaskRepository();
+  private final StatisticsRepository statisticsRepository = new StatisticsRepository();
 
   private NavigationController navigation;
   private User user;
@@ -64,46 +70,55 @@ public class LandingPageController {
    */
   @FXML
   public void initialize() {
-    Platform.runLater(() -> {
-      if (usernameLabel.getScene() != null) {
-        usernameLabel.getScene().getWindow().setWidth(800);
-        usernameLabel.getScene().getWindow().setHeight(600);
-      }
-    });
 
     // Setup table columns
-    dueDateColumn.setCellValueFactory(cellData -> cellData.getValue().dueDateProperty());
-    priorityColumn.setCellValueFactory(cellData -> cellData.getValue().priorityProperty());
-    descriptionColumn.setCellValueFactory(cellData -> cellData.getValue().descriptionProperty());
-    responsibilityColumn.setCellValueFactory(cellData -> cellData.getValue().responsibilityProperty());
-    detailsColumn.setCellValueFactory(cellData -> cellData.getValue().detailsProperty());
+    dueDateColumn.setCellValueFactory(
+        cellData -> cellData.getValue().dueDateProperty());
+    priorityColumn.setCellValueFactory(
+        cellData -> cellData.getValue().priorityProperty());
+    descriptionColumn.setCellValueFactory(
+        cellData -> cellData.getValue().descriptionProperty());
+    responsibilityColumn.setCellValueFactory(
+        cellData -> cellData.getValue().responsibilityProperty());
+    detailsColumn.setCellValueFactory(
+        cellData -> cellData.getValue().detailsProperty());
 
-    taskTable.setItems(masterTaskList);
-    taskTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-
-    // Add color style to priority
-    priorityColumn.setCellFactory(column -> new TableCell<>() {
+    dueDateColumn.setCellFactory(column -> new TableCell<>() {
       @Override
-      protected void updateItem(TaskPriority priority, boolean empty) {
-        super.updateItem(priority, empty);
-        if (empty || priority == null) {
+      protected void updateItem(LocalDate date, boolean empty) {
+        super.updateItem(date, empty);
+
+        if (empty || date == null) {
           setText(null);
-          getStyleClass().removeAll("priority-low", "priority-medium", "priority-high");
+          setGraphic(null);
+          setStyle("");
         } else {
-          setText(priority.name());
-          getStyleClass().removeAll("priority-low", "priority-medium", "priority-high");
-          switch (priority) {
-            case LOW -> getStyleClass().add("priority-low");
-            case MEDIUM -> getStyleClass().add("priority-medium");
-            case HIGH -> getStyleClass().add("priority-high");
+          // Check if the task is due today or past due
+          long daysUntilDue = ChronoUnit.DAYS.between(LocalDate.now(), date);
+
+          setText(date.toString());
+          setGraphic(null);
+
+          if (daysUntilDue < 1) {
+
+            setStyle("-fx-text-fill: red;");
+          } else {
+
+            setStyle("");
           }
         }
       }
     });
 
+    taskTable.setItems(masterTaskList);
+    taskTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+
+    // Add color style to priority
+    priorityColumn.setCellFactory(TableCellFactories.priorityCellFactory());
+
     // Show/hide complete button on selection
     taskTable.getSelectionModel().selectedItemProperty().addListener((obs, old, selected) ->
-      completeTaskButton.setVisible(selected != null));
+        completeTaskButton.setVisible(selected != null));
 
     taskTable.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
       if (taskTable.getSelectionModel().getSelectedItem() == null) {
@@ -129,21 +144,69 @@ public class LandingPageController {
   }
 
   /**
+   * Loads statistics for the current user.
+   */
+
+  public void loadStatistics() {
+
+    try {
+      // Get tasks completed this week
+      int tasksThisWeek = statisticsRepository.getTasksCompletedThisWeek(user.getId());
+      tasksThisWeekLabel.setText(String.valueOf(tasksThisWeek));
+
+      // Get tasks completed previous weeks
+      int[][] weeklyStats = statisticsRepository.getWeeklyTaskCompletions(user.getId(), 2);
+
+      // The first element is the current week, the second is the previous week
+      if (weeklyStats.length > 1) {
+        int tasksLastWeek = weeklyStats[0][1];
+        tasksLastWeekLabel.setText(String.valueOf(tasksLastWeek));
+      } else {
+        tasksLastWeekLabel.setText("");
+      }
+    } catch (SQLException e) {
+      System.err.println("Failed to fetch statistics: " + e.getMessage());
+      tasksThisWeekLabel.setText("--");
+      tasksLastWeekLabel.setText("--");
+    }
+  }
+
+  /**
    * Handles task deletion.
    */
   private void handleCompleteTask() {
     Task selected = taskTable.getSelectionModel().getSelectedItem();
     if (selected != null) {
       try {
-        new StatisticsRepository().completeTask(selected.getTaskId(), user.getId());
+        int taskId = selected.getTaskId();
+
+        // Update general stats for current user
+        statisticsRepository.completeTask(taskId, user.getId());
+
+        // Get assigned member
+        Integer memberId = taskRepository.getAssignedMemberId(taskId);
+
+        // If task is assigned to a member, update member stats
+        if (memberId != null) {
+          taskRepository.completeTaskForMember(taskId, memberId);
+        }
+
+        // Remove from table and update UI
         masterTaskList.remove(selected);
         completeTaskButton.setVisible(false);
         taskTable.getSelectionModel().clearSelection();
+        loadStatistics();
+
+        // Flag reload for other views
+        AppState.getInstance().setShouldReloadTasks(true);
+
       } catch (SQLException e) {
-        System.err.println("Failed to delete task: " + e.getMessage());
+        System.err.println("Failed to complete task: " + e.getMessage());
+        e.printStackTrace();
       }
     }
   }
+
 
   /**
    * Sets the navigation controller.
@@ -162,6 +225,9 @@ public class LandingPageController {
   public void setUser(User user) {
     this.user = user;
     updateUsername();
+
+    loadTasks();
+    AppState.getInstance().setShouldReloadTasks(false);
   }
 
   /**
@@ -182,8 +248,6 @@ public class LandingPageController {
     });
 
     homeButton.setOnAction(e -> navigation.goToLandingPage());
-    calendarButton.setOnAction(e -> navigation.goToCalendarPage());
-    statisticsButton.setOnAction(e -> navigation.goToStatisticsPage());
     householdButton.setOnAction(e -> navigation.goToHouseholdPage());
   }
 
@@ -192,6 +256,8 @@ public class LandingPageController {
       usernameLabel.setText("Hello, " + user.getUsername() + "!");
     }
   }
+
+
 
   // Filtering logic unchanged
   private void showFilterPopup() {
@@ -221,22 +287,22 @@ public class LandingPageController {
     buttons.setAlignment(Pos.CENTER_RIGHT);
 
     content.getChildren().addAll(priorityLabel, priorityFilter,
-      responsibilityLabel, responsibilityFilter,
-      dueDateLabel, dueDatePicker,
-      buttons);
+        responsibilityLabel, responsibilityFilter,
+        dueDateLabel, dueDatePicker,
+        buttons);
     filterPopup.getContent().add(content);
 
     apply.setOnAction(event -> {
       FilteredList<Task> filtered = new FilteredList<>(masterTaskList, task -> {
-        boolean matchesPriority = priorityFilter.getValue() == null ||
-          task.getPriority().equals(priorityFilter.getValue());
+        boolean matchesPriority = priorityFilter.getValue() == null
+            || task.getPriority().equals(priorityFilter.getValue());
 
-        boolean matchesResponsibility = responsibilityFilter.getText().isBlank() ||
-          (task.getResponsibility() != null &&
-            task.getResponsibility().toLowerCase().contains(responsibilityFilter.getText().toLowerCase()));
+        boolean matchesResponsibility = responsibilityFilter.getText().isBlank()
+            || (task.getResponsibility() != null
+            && task.getResponsibility().toLowerCase().contains(responsibilityFilter.getText().toLowerCase()));
 
-        boolean matchesDate = dueDatePicker.getValue() == null ||
-          !task.getDueDate().isAfter(dueDatePicker.getValue());
+        boolean matchesDate = dueDatePicker.getValue() == null
+            || !task.getDueDate().isAfter(dueDatePicker.getValue());
 
         return matchesPriority && matchesResponsibility && matchesDate;
       });
@@ -254,7 +320,7 @@ public class LandingPageController {
     });
 
     filterPopup.show(filterButton,
-      filterButton.localToScreen(filterButton.getBoundsInLocal()).getMinX(),
-      filterButton.localToScreen(filterButton.getBoundsInLocal()).getMaxY());
+        filterButton.localToScreen(filterButton.getBoundsInLocal()).getMinX(),
+        filterButton.localToScreen(filterButton.getBoundsInLocal()).getMaxY());
   }
 }

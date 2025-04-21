@@ -16,6 +16,7 @@ public class AppState {
   private static final AppState instance = new AppState();
 
   private User currentUser;
+  private boolean shouldReloadTasks = false;
 
   // Private constructor to prevent external instantiation
   private AppState() {}
@@ -61,5 +62,23 @@ public class AppState {
    */
   public boolean isLoggedIn() {
     return currentUser != null;
+  }
+
+  /**
+   * Checks if tasks should be reloaded.
+   *
+   * @return true if tasks should be reloaded, false otherwise
+   */
+  public boolean shouldReloadTasks() {
+    return shouldReloadTasks;
+  }
+
+  /**
+   * Sets whether the tasks should be reloaded.
+   *
+   * @param shouldReload true if tasks should be reloaded, false otherwise
+   */
+  public void setShouldReloadTasks(boolean shouldReload) {
+    this.shouldReloadTasks = shouldReload;
   }
 }

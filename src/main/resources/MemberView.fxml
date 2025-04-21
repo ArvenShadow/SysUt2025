@@ -44,6 +44,7 @@
             </padding>
             <Button fx:id="filterButton" text="Filter" onAction="#handleFilterButton" />
             <Region HBox.hgrow="ALWAYS" />
+            <Button fx:id="completeTaskButton" text="Complete" visible="false" />
             <Button fx:id="newTaskButton" text="New Task" onAction="#handleNewTaskButton" />
         </HBox>
     </bottom>

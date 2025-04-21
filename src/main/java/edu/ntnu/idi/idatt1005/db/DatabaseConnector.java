@@ -2,6 +2,7 @@ package edu.ntnu.idi.idatt1005.db;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -12,9 +13,7 @@ import java.util.Properties;
  * Reads connection settings from a properties file and ensures a shared
  * connection instance across the application.
  *
- * This class is used by repositories like {@code UserRepository} and {@code TaskRepository}
- *
- * @author KrissKN
+ * <p>This class is used by repositories like {@code UserRepository} and {@code TaskRepository}
  */
 public class DatabaseConnector {
 
@@ -27,10 +26,16 @@ public class DatabaseConnector {
   static {
     try {
       Properties properties = new Properties();
-      properties.load(new FileInputStream("src/main/resources/db.properties"));
-      url = properties.getProperty("db.url");
-      user = properties.getProperty("db.user");
-      password = properties.getProperty("db.password");
+      InputStream input = DatabaseConnector.class.getResourceAsStream("/db.properties");
+      if (input == null) {
+        System.err.println("Unable to find db.properties");
+        // Use default values or handle the error
+      } else {
+        properties.load(input);
+        url = properties.getProperty("db.url");
+        user = properties.getProperty("db.user");
+        password = properties.getProperty("db.password");
+      }
     } catch (IOException e) {
       throw new RuntimeException("Failed to load database properties", e);
     }

@@ -2,6 +2,7 @@ package edu.ntnu.idi.idatt1005.repository;
 
 import edu.ntnu.idi.idatt1005.db.DatabaseConnector;
 import edu.ntnu.idi.idatt1005.model.Task;
+import edu.ntnu.idi.idatt1005.model.TaskPriority;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -9,12 +10,34 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import edu.ntnu.idi.idatt1005.model.TaskPriority;
 
+/**
+ * Repository class for managing task data in the database.
+ *
+ * <p>This class provides methods for creating, retrieving, updating, and deleting tasks.
+ * It handles database interactions for task operations, including task assignments
+ * to members and task completion tracking.
+ */
 public class TaskRepository {
 
+  /**
+  * Default constructor for TaskRepository.
+  */
+  public TaskRepository() {
+    // Default constructor implementation
+  }
+
+  /**
+   * Retrieves all tasks associated with a specific user.
+   *
+   * @param userId The ID of the user whose tasks to fetch
+   * @return List of Task objects belonging to the specified user
+   * @throws SQLException if a database error occurs during the operation
+   */
   public List<Task> fetchTasks(int userId) throws SQLException {
-    String query = "SELECT task_id, description, due_date, priority, details FROM tasks WHERE user_id = ?";
+    String query =
+        "SELECT task_id, description, due_date, priority, details, responsibility "
+          + "FROM tasks WHERE user_id = ?";
 
     List<Task> tasks = new ArrayList<>();
 
@@ -28,8 +51,9 @@ public class TaskRepository {
           LocalDate dueDate = resultSet.getDate("due_date").toLocalDate();
           TaskPriority priority = TaskPriority.valueOf(resultSet.getString("priority"));
           String details = resultSet.getString("details");
+          String responsibility = resultSet.getString("responsibility");
 
-          Task task = new Task(taskId, description, dueDate, priority, details);
+          Task task = new Task(taskId, description, dueDate, priority, details, responsibility);
           tasks.add(task);
 
         }
@@ -41,64 +65,90 @@ public class TaskRepository {
     return tasks;
   }
 
+  /**
+   * Retrieves all tasks assigned to a specific member.
+   *
+   * @param memberId The ID of the member whose assigned tasks to fetch
+   * @return List of Task objects assigned to the specified member
+   * @throws SQLException if a database error occurs during the operation
+   */
   public List<Task> fetchTasksAssignedToMember(int memberId) throws SQLException {
-    String query = "SELECT t.task_id, t.description, t.due_date, t.priority, t.details " +
-            "FROM tasks t " +
-            "JOIN task_assignments ta ON t.task_id = ta.task_id " +
-            "WHERE ta.assigned_to = ?";
+    String query = """
+    SELECT task_id, description, due_date, priority, details, responsibility
+    FROM tasks
+    WHERE member_id = ?
+        """;
 
     List<Task> tasks = new ArrayList<>();
 
     try (Connection conn = DatabaseConnector.getConnection();
-         PreparedStatement statement = conn.prepareStatement(query)) {
-      statement.setInt(1, memberId);
-      try (ResultSet resultSet = statement.executeQuery()) {
-        while (resultSet.next()) {
-          int taskId = resultSet.getInt("task_id");
-          String description = resultSet.getString("description");
-          LocalDate dueDate = resultSet.getDate("due_date").toLocalDate();
-          TaskPriority priority = TaskPriority.valueOf(resultSet.getString("priority"));
-          String details = resultSet.getString("details");
+         PreparedStatement stmt = conn.prepareStatement(query)) {
 
-          Task task = new Task(taskId, description, dueDate, priority, details);
+      stmt.setInt(1, memberId);
+      try (ResultSet rs = stmt.executeQuery()) {
+        while (rs.next()) {
+          int taskId = rs.getInt("task_id");
+          String description = rs.getString("description");
+          LocalDate dueDate = rs.getDate("due_date").toLocalDate();
+          TaskPriority priority = TaskPriority.valueOf(rs.getString("priority"));
+          String details = rs.getString("details");
+          String responsibility = rs.getString("responsibility");
+
+          Task task = new Task(taskId, description, dueDate, priority, details, responsibility);
           tasks.add(task);
         }
       }
-    } catch (SQLException e) {
-      System.err.println("Failed to fetch tasks assigned to member: " + e.getMessage());
-      throw e;
     }
+
     return tasks;
   }
 
+  /**
+   * Creates a new task associated with a user in the database.
+   *
+   * @param task The Task object containing task details to create
+   * @param userId The ID of the user who owns the task
+   * @return The generated task ID for the newly created task
+   * @throws SQLException if a database error occurs or if task creation fails
+   */
   public int createTask(Task task, int userId) throws SQLException {
-    String query = "INSERT INTO tasks (description, due_date, priority, details, user_id )"
-            + "VALUES (?, ?, ?, ?, ?)";
+    String query = """
+        INSERT INTO tasks (description, due_date, priority, details, user_id, responsibility)
+        VALUES (?, ?, ?, ?, ?, ?)
+        """;
+
     try (Connection conn = DatabaseConnector.getConnection();
-         PreparedStatement statement = conn.prepareStatement(query, PreparedStatement.RETURN_GENERATED_KEYS);) {
+         PreparedStatement statement =
+            conn.prepareStatement(query, PreparedStatement.RETURN_GENERATED_KEYS)) {
+
       statement.setString(1, task.getDescription());
       statement.setDate(2, java.sql.Date.valueOf(task.getDueDate()));
       statement.setString(3, task.getPriority().toString());
       statement.setString(4, task.getDetails());
       statement.setInt(5, userId);
+      statement.setString(6, task.getResponsibility());
+
       statement.executeUpdate();
-      try (ResultSet generatedKeys = statement
-              .getGeneratedKeys()) {
-        if (generatedKeys.next()) {
-          return generatedKeys.getInt(1);
+
+      try (ResultSet keys = statement.getGeneratedKeys()) {
+        if (keys.next()) {
+          return keys.getInt(1);
         } else {
-          throw new SQLException("Creating task failed successfully, no ID obtained.");
+          throw new SQLException("Creating task failed, no ID obtained.");
         }
       }
     }
   }
 
+
   /**
-   * Creates a task and assigns it to a member in one transaction
-   * @param task The task to create
-   * @param createdBy User ID who creates the task
-   * @param assignedTo Member ID who will be assigned the task
-   * @return The ID of the created task, or -1 if creation failed
+   * Creates a task and assigns it to a member in a single transaction.
+   * Also updates member statistics to reflect the new task assignment.
+   *
+   * @param task The Task object containing task details to create
+   * @param createdBy User ID of the task creator
+   * @param assignedTo Member ID who will be assigned to the task
+   * @return The generated task ID, or -1 if the operation failed
    */
   public int createTaskForMember(Task task, int createdBy, int assignedTo) {
     Connection conn = null;
@@ -106,47 +156,43 @@ public class TaskRepository {
       conn = DatabaseConnector.getConnection();
       conn.setAutoCommit(false);
 
-      // First create the task
-      String taskQuery = "INSERT INTO tasks (description, due_date, priority, details, user_id) " +
-              "VALUES (?, ?, ?, ?, ?)";
+      String query =
+          "INSERT INTO tasks "
+          + "(description, due_date, priority, details, user_id, responsibility, member_id) "
+          + "VALUES (?, ?, ?, ?, ?, ?, ?)";
 
       int taskId;
-      try (PreparedStatement statement = conn.prepareStatement(taskQuery, PreparedStatement.RETURN_GENERATED_KEYS)) {
-        statement.setString(1, task.getDescription());
-        statement.setDate(2, java.sql.Date.valueOf(task.getDueDate()));
-        statement.setString(3, task.getPriority().toString());
-        statement.setString(4, task.getDetails());
-        statement.setInt(5, createdBy); // Created by the main user
+      try (PreparedStatement stmt =
+             conn.prepareStatement(query, PreparedStatement.RETURN_GENERATED_KEYS)) {
+        stmt.setString(1, task.getDescription());
+        stmt.setDate(2, java.sql.Date.valueOf(task.getDueDate()));
+        stmt.setString(3, task.getPriority().toString());
+        stmt.setString(4, task.getDetails());
+        stmt.setInt(5, createdBy);
+        stmt.setString(6, task.getResponsibility());
+        stmt.setInt(7, assignedTo); // ✅ KEY: storing member_id directly in tasks table
 
-        statement.executeUpdate();
+        stmt.executeUpdate();
 
-        try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
-          if (generatedKeys.next()) {
-            taskId = generatedKeys.getInt(1);
+        try (ResultSet keys = stmt.getGeneratedKeys()) {
+          if (keys.next()) {
+            taskId = keys.getInt(1);
           } else {
-            throw new SQLException("Creating task failed, no ID obtained.");
+            throw new SQLException("Task insert failed, no ID returned.");
           }
         }
       }
 
-      // Then create the assignment record
-      String assignQuery = "INSERT INTO task_assignments (task_id, assigned_by, assigned_to) " +
-              "VALUES (?, ?, ?)";
+      // Update member stats directly
+      String statsQuery =
+          "INSERT INTO member_stats (member_id, ongoing_tasks, completed_tasks, total_tasks) "
+          + "VALUES (?, 1, 0, 1) "
+          + "ON DUPLICATE KEY UPDATE ongoing_tasks ="
+            + " ongoing_tasks + 1, total_tasks = total_tasks + 1";
 
-      try (PreparedStatement statement = conn.prepareStatement(assignQuery)) {
-        statement.setInt(1, taskId);
-        statement.setInt(2, createdBy);
-        statement.setInt(3, assignedTo);
-        statement.executeUpdate();
-      }
-
-      // Update member stats
-      String statsQuery = "UPDATE member_stats SET ongoing_tasks = ongoing_tasks + 1, " +
-              "total_tasks = total_tasks + 1 WHERE member_id = ?";
-
-      try (PreparedStatement statement = conn.prepareStatement(statsQuery)) {
-        statement.setInt(1, assignedTo);
-        statement.executeUpdate();
+      try (PreparedStatement stmt = conn.prepareStatement(statsQuery)) {
+        stmt.setInt(1, assignedTo);
+        stmt.executeUpdate();
       }
 
       conn.commit();
@@ -156,12 +202,11 @@ public class TaskRepository {
       if (conn != null) {
         try {
           conn.rollback();
-        } catch (SQLException ex) {
-          ex.printStackTrace();
+        } catch (SQLException rollbackEx) {
+          rollbackEx.printStackTrace();
         }
       }
       System.err.println("Failed to create task for member: " + e.getMessage());
-      e.printStackTrace();
       return -1;
     } finally {
       if (conn != null) {
@@ -175,12 +220,86 @@ public class TaskRepository {
     }
   }
 
+  /**
+   * Retrieves the ID of the member assigned to a specific task.
+   *
+   * @param taskId The ID of the task to check
+   * @return The assigned member's ID, or null if no member is assigned
+   * @throws SQLException if a database error occurs during the operation
+   */
+  public Integer getAssignedMemberId(int taskId) throws SQLException {
+    String query = "SELECT member_id FROM tasks WHERE task_id = ?";
+    try (Connection conn = DatabaseConnector.getConnection();
+         PreparedStatement stmt = conn.prepareStatement(query)) {
 
+      stmt.setInt(1, taskId);
 
-  public void updateTask() {
-
+      try (ResultSet rs = stmt.executeQuery()) {
+        if (rs.next()) {
+          int memberId = rs.getInt("member_id");
+          // Check if it was NULL in the database
+          return rs.wasNull() ? null : memberId;
+        }
+      }
+    }
+    return null; // No assignment found
   }
 
+  /**
+   * Marks a task as completed for a member and updates member statistics.
+   * The task remains in the system but is no longer assigned to the member.
+   *
+   * @param taskId The ID of the task to mark as completed
+   * @param memberId The ID of the member who completed the task
+   * @throws SQLException if a database error occurs during the operation
+   */
+  public void completeTaskForMember(int taskId, int memberId) throws SQLException {
+    Connection conn = null;
+    try {
+      conn = DatabaseConnector.getConnection();
+      conn.setAutoCommit(false);
+
+      // Update member stats to increase completed tasks and decrease ongoing tasks
+      String updateStats = "UPDATE member_stats SET completed_tasks = completed_tasks + 1, "
+          + "ongoing_tasks = ongoing_tasks - 1 WHERE member_id = ?";
+
+      // Clear the member assignment from the task
+      String clearMemberAssignment = "UPDATE tasks SET member_id = NULL WHERE task_id = ?";
+
+      try (PreparedStatement stmt1 = conn.prepareStatement(updateStats);
+           PreparedStatement stmt2 = conn.prepareStatement(clearMemberAssignment)) {
+
+        stmt1.setInt(1, memberId);
+        stmt1.executeUpdate();
+
+        stmt2.setInt(1, taskId);
+        stmt2.executeUpdate();
+
+        conn.commit();
+      } catch (SQLException e) {
+        conn.rollback();
+        throw e;
+      }
+    } finally {
+      if (conn != null) {
+        try {
+          conn.setAutoCommit(true);
+          conn.close();
+        } catch (SQLException e) {
+          e.printStackTrace();
+        }
+      }
+    }
+  }
+
+  /**
+   * Deletes a task using an existing database connection.
+   * Used primarily as part of transaction operations.
+   *
+   * @param conn The active database connection to use
+   * @param taskID The ID of the task to delete
+   * @throws SQLException if a database error occurs during the operation
+   */
   public void deleteTask(Connection conn, int taskID) throws SQLException {
     String query = "DELETE FROM tasks WHERE task_id = ?";
     try (PreparedStatement statement = conn.prepareStatement(query)) {
@@ -189,7 +308,13 @@ public class TaskRepository {
     }
   }
 
-
+  /**
+   * Deletes a task and its assignments from the database.
+   * This method handles the database connection and transaction management.
+   *
+   * @param taskId The ID of the task to delete
+   * @throws SQLException if a database error occurs during the operation
+   */
   public void deleteTask(int taskId) throws SQLException {
     Connection conn = null;
     try {

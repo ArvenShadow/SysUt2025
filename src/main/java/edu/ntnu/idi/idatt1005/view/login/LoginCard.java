@@ -22,7 +22,6 @@ import javafx.util.Duration;
  * Handles login form input, plays sound on success, and navigates
  * to the landing page using {@link NavigationController}.
  *
- * Author: KrissKN
  */
 public class LoginCard extends VBox {
 

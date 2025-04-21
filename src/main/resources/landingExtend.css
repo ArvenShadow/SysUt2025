@@ -1,10 +1,13 @@
 /* ----------------------------------
    IMPORTS & GLOBAL
 ---------------------------------- */
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+@font-face {
+    font-family: 'Roboto';
+    src: url('fonts/Roboto-VariableFont_wdth,wght.ttf');
+}
 
 .root {
-    -fx-background-image: url("/images/Wavy_backround.png");
+    -fx-background-image: url("images/Wavy_backround.png");
     -fx-background-size: 100% 100%;
     -fx-background-position: center center;
     -fx-font-family: 'Roboto', sans-serif;

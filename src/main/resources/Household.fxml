@@ -26,18 +26,14 @@
                 <Label fx:id="usernameLabel" text="Hello, Admin!" styleClass="username-label"/>
             </HBox>
 
-            <TextField fx:id="searchField" promptText="Search..." maxWidth="Infinity" styleClass="search-field"/>
 
             <Separator/>
 
             <Button fx:id="homeButton" text="Home" maxWidth="Infinity" styleClass="sidebar-button"/>
-            <Button fx:id="statisticsButton" text="Statistics" maxWidth="Infinity" styleClass="sidebar-button"/>
-            <Button fx:id="calendarButton" text="Calendar" maxWidth="Infinity" styleClass="sidebar-button"/>
-            <Button fx:id="householdButton" text="Household" maxWidth="Infinity" styleClass="sidebar-button"/>
-
+            <Button fx:id="logoutButton" text="Logout" maxWidth="Infinity" styleClass="logout-button"/>
             <Region VBox.vgrow="ALWAYS"/>
 
-            <Button fx:id="logoutButton" text="Logout" maxWidth="Infinity" styleClass="logout-button"/>
+
         </VBox>
     </left>
 
@@ -48,7 +44,7 @@
                 <Insets top="10" right="40" bottom="10" left="40"/>
             </padding>
 
-            <!-- ✅ Household name text binding target -->
+
             <Text fx:id="householdNameText" text="My Household" styleClass="household-name"/>
 
             <HBox spacing="10" alignment="CENTER" VBox.vgrow="ALWAYS">
@@ -62,6 +58,10 @@
 
             <HBox alignment="BOTTOM_RIGHT" spacing="10">
                 <Button fx:id="addMemberButton" text="+ Add" styleClass="action-button"/>
+            </HBox>
+
+            <HBox alignment="BOTTOM_LEFT" spacing="10">
+                <Button fx:id="deleteMemberButton" text="+ Delete" styleClass="action-button"/>
             </HBox>
         </VBox>
     </center>
