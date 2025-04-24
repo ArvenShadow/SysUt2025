@@ -85,6 +85,8 @@ public class NavigationController {
   public void goToMemberView(User member) {
     Scene memberScene = viewFactory.createMemberView(member);
     setSceneWithStylesheet(memberScene, "Flowstate - " + member.getUsername(), MAIN_STYLESHEET);
+    stage.setMaximized(false);
+    stage.setMaximized(true);
   }
 
   /**

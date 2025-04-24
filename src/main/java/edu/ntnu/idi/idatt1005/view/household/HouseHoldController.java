@@ -257,8 +257,28 @@ public class HouseHoldController implements Initializable {
 
       // Update the observable list
       members.setAll(memberList);
+
+      // Check if tasks have been completed elsewhere and refresh
+      if (AppState.getInstance().shouldReloadTasks()) {
+        refreshMemberStats();
+        AppState.getInstance().setShouldReloadTasks(false);
+      }
     } catch (SQLException e) {
       System.err.println("Error loading members: " + e.getMessage());
+    }
+  }
+
+  /**
+   * Refreshes all member statistics from the database.
+   */
+  public void refreshMemberStats() {
+    try {
+      for (Member member : members) {
+        updateMemberStats(member.getId());
+      }
+      refreshMembersView(); // Refresh the UI
+    } catch (Exception e) {
+      System.err.println("Error refreshing member stats: " + e.getMessage());
     }
   }
 

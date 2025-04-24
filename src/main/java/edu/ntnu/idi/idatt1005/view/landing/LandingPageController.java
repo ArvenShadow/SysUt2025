@@ -180,16 +180,8 @@ public class LandingPageController {
       try {
         int taskId = selected.getTaskId();
 
-        // Update general stats for current user
-        statisticsRepository.completeTask(taskId, user.getId());
-
-        // Get assigned member
-        Integer memberId = taskRepository.getAssignedMemberId(taskId);
-
-        // If task is assigned to a member, update member stats
-        if (memberId != null) {
-          taskRepository.completeTaskForMember(taskId, memberId);
-        }
+        // Complete the task and update all statistics
+        taskRepository.completeTask(taskId, user.getId());
 
         // Remove from table and update UI
         masterTaskList.remove(selected);

@@ -77,7 +77,7 @@ public class ViewFactory {
       return scene;
     } catch (IOException e) {
       e.printStackTrace();
-      return new Scene(new BorderPane(), 800, 600); // fallback
+      return new Scene(new javafx.scene.layout.BorderPane(), 800, 600); // fallback
     }
   }
 
@@ -173,6 +173,6 @@ public class ViewFactory {
    */
   private Scene fallback(String pageName) {
     System.err.println("Failed to load " + pageName + " page. Showing blank fallback.");
-    return new Scene(new BorderPane(), 800, 600);
+    return new Scene(new javafx.scene.layout.BorderPane(), 800, 600);
   }
 }

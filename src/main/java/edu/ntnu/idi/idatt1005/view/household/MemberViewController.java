@@ -134,9 +134,9 @@ public class MemberViewController implements Initializable {
     }
 
     try {
-      taskRepository.completeTaskForMember(selectedTask.getTaskId(), member.getId());
-      new StatisticsRepository().completeTask(selectedTask.getTaskId(),
-          AppState.getInstance().getCurrentUser().getId());
+      // Complete the task with the unified method
+      taskRepository.completeTask(selectedTask.getTaskId(),
+        AppState.getInstance().getCurrentUser().getId());
 
       taskList.remove(selectedTask);
       taskTable.getSelectionModel().clearSelection();
@@ -145,11 +145,11 @@ public class MemberViewController implements Initializable {
       AppState.getInstance().setShouldReloadTasks(true);
 
       showAlert(Alert.AlertType.INFORMATION, "Success", "Task Completed",
-                    "Task marked as completed and stats updated.");
+        "Task marked as completed and stats updated.");
     } catch (SQLException e) {
       e.printStackTrace();
       showAlert(Alert.AlertType.ERROR, "Error", "Failed to complete task",
-                    "Could not complete task: " + e.getMessage());
+        "Could not complete task: " + e.getMessage());
     }
   }
 

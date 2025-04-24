@@ -356,4 +356,95 @@ public class TaskRepository {
       }
     }
   }
+
+  /**
+   * Completes a task and updates all relevant statistics in one transaction.
+   *
+   * @param taskId ID of the task to complete
+   * @param userId ID of the user completing the task
+   * @throws SQLException if a database error occurs
+   */
+  public void completeTask(int taskId, int userId) throws SQLException {
+    Connection conn = null;
+    try {
+      conn = DatabaseConnector.getConnection();
+      conn.setAutoCommit(false);
+
+      // Check if task is assigned to a member
+      String checkMemberQuery = "SELECT member_id FROM tasks WHERE task_id = ?";
+      Integer memberId = null;
+      try (PreparedStatement stmt = conn.prepareStatement(checkMemberQuery)) {
+        stmt.setInt(1, taskId);
+        try (ResultSet rs = stmt.executeQuery()) {
+          if (rs.next()) {
+            memberId = rs.getInt("member_id");
+            if (rs.wasNull()) {
+              memberId = null;
+            }
+          }
+        }
+      }
+
+      // Update member stats if assigned
+      if (memberId != null) {
+        String updateMemberStatsQuery = "UPDATE member_stats SET completed_tasks = completed_tasks + 1, "
+          + "ongoing_tasks = ongoing_tasks - 1 WHERE member_id = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(updateMemberStatsQuery)) {
+          stmt.setInt(1, memberId);
+          stmt.executeUpdate();
+        }
+      }
+
+      // Update general statistics
+      String updateStatsQuery = "UPDATE statistics SET completed_tasks = completed_tasks + 1 WHERE user_id = ?";
+      try (PreparedStatement stmt = conn.prepareStatement(updateStatsQuery)) {
+        stmt.setInt(1, userId);
+        int rowsAffected = stmt.executeUpdate();
+
+        // If no rows affected, create a new statistics record
+        if (rowsAffected == 0) {
+          String insertStatsQuery = "INSERT INTO statistics (user_id, completed_tasks) VALUES (?, 1)";
+          try (PreparedStatement insertStmt = conn.prepareStatement(insertStatsQuery)) {
+            insertStmt.setInt(1, userId);
+            insertStmt.executeUpdate();
+          }
+        }
+      }
+
+      // Record the completion in history table
+      String recordHistoryQuery = "INSERT INTO task_completion_history (user_id, task_id) VALUES (?, ?)";
+      try (PreparedStatement stmt = conn.prepareStatement(recordHistoryQuery)) {
+        stmt.setInt(1, userId);
+        stmt.setInt(2, taskId);
+        stmt.executeUpdate();
+      }
+
+      // Delete the task
+      String deleteTaskQuery = "DELETE FROM tasks WHERE task_id = ?";
+      try (PreparedStatement stmt = conn.prepareStatement(deleteTaskQuery)) {
+        stmt.setInt(1, taskId);
+        stmt.executeUpdate();
+      }
+
+      conn.commit();
+    } catch (SQLException e) {
+      if (conn != null) {
+        try {
+          conn.rollback();
+        } catch (SQLException ex) {
+          ex.printStackTrace();
+        }
+      }
+      throw e;
+    } finally {
+      if (conn != null) {
+        try {
+          conn.setAutoCommit(true);
+          conn.close();
+        } catch (SQLException e) {
+          e.printStackTrace();
+        }
+      }
+    }
+  }
 }

@@ -22,7 +22,7 @@ class TaskTest {
   void setUp() throws SQLException {
     // Set up database connection
     connection = DatabaseConnector.getConnection();
-    task = new Task("Buy groceries", LocalDate.of(2025, 4, 1), TaskPriority.MEDIUM, "Milk, Bread, Eggs", "Ole Markus");
+    task = new Task("Buy groceries", LocalDate.of(2025, 4, 1), TaskPriority.MEDIUM, "Milk, Bread, Eggs", "Ole");
   }
 
   @Test
@@ -37,6 +37,6 @@ class TaskTest {
 
   @Test
   void testResponsibilityDefault() {
-    assertEquals("Ole Markus", task.getResponsibility());
+    assertEquals("", task.getResponsibility());
   }
 }

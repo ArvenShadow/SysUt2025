@@ -23,9 +23,9 @@ import javafx.stage.Stage;
  *   <li>The {@link #start(Stage)} method is automatically invoked to initialize the UI.</li>
  * </ul>
  *
- * @see Application
- * @see Stage
- * @see NavigationController
+ * @see javafx.application.Application
+ * @see javafx.stage.Stage
+ * @see edu.ntnu.idi.idatt1005.app.NavigationController
  */
 
 public class TaskManagerApp extends Application {
