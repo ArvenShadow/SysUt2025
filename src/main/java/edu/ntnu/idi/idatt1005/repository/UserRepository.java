@@ -64,6 +64,13 @@ public class UserRepository {
    * @throws SQLException if a database access error occurs
    */
   public boolean createUser(String username, String password) throws SQLException {
+    if (username == null || username.trim().isEmpty()) {
+      throw new IllegalArgumentException("Username cannot be empty");
+    }
+    if (password == null || password.trim().isEmpty()) {
+      throw new IllegalArgumentException("Password cannot be empty");
+    }
+
     String query = "INSERT INTO users (username, password) VALUES (?, ?)";
     try (Connection conn = DatabaseConnector.getConnection();
          PreparedStatement stmt = conn.prepareStatement(query)) {

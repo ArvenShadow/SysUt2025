@@ -6,6 +6,7 @@ import edu.ntnu.idi.idatt1005.model.Member;
 import edu.ntnu.idi.idatt1005.model.MemberStat;
 import edu.ntnu.idi.idatt1005.model.User;
 import edu.ntnu.idi.idatt1005.repository.MemberRepository;
+import edu.ntnu.idi.idatt1005.util.SoundPlayer;
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -13,8 +14,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.ResourceBundle;
-
-import edu.ntnu.idi.idatt1005.util.SoundPlayer;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -66,6 +65,7 @@ public class HouseHoldController implements Initializable {
   @FXML private Button logoutButton;
   @FXML private FlowPane membersContainer;
   @FXML private Text householdNameText;
+  @FXML private Label usernameLabel;
 
 
   private NavigationController navigation;
@@ -83,6 +83,7 @@ public class HouseHoldController implements Initializable {
 
   // Current user ID - this would be set from login session
   private int currentUserId = 1; // Default value, should be set from login session
+  private User user;
 
   @Override
   public void initialize(URL location, ResourceBundle resources) {
@@ -97,6 +98,7 @@ public class HouseHoldController implements Initializable {
 
     setupEventHandlers();
     loadMembersData();
+    updateUsername();
   }
 
   private void setupEventHandlers() {
@@ -344,4 +346,25 @@ public class HouseHoldController implements Initializable {
     this.currentUserId = userId;
     loadMembersData(); // Reload data for the new user
   }
+
+
+  /**
+   * Sets the current logged-in user and updates the UI.
+   *
+   * @param user the user
+   */
+  public void setUser(User user) {
+    this.user = user;
+    updateUsername();
+  }
+
+  /**
+   * Updates the username label with the current user's username.
+   */
+  private void updateUsername() {
+    if (usernameLabel != null && user != null) {
+      usernameLabel.setText("Hello, " + user.getUsername() + "!");
+    }
+  }
+
 }

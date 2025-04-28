@@ -99,6 +99,7 @@ public class ViewFactory {
       HouseHoldController controller = loader.getController();
       controller.setNavigation(navigation);
       controller.setHouseholdName("My Household");
+      controller.setUser(AppState.getInstance().getCurrentUser());
 
       User currentUser = AppState.getInstance().getCurrentUser();
       if (currentUser != null) {

@@ -148,7 +148,4 @@ public class MemberRepository {
     // Return fallback if stats not found
     return new MemberStat(member.getId(), 0, 0, 0);
   }
-
-
-
 }
